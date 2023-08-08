@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Room{% endblock %}
+
+{% block body %}
+    <div class="flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gray-50">
+        <div class="bg-white p-10 ring-1 ring-gray-700/5 sm:mx-auto sm:rounded-lg">
+            <div class="w-96">
+                <h1 class="flex items-center justify-center text-xl">{{ room.name }}</h1>
+
+                {% if chart != null %}
+                    <div class="mt-4" style="height:300px;">
+                        {{ render_chart(chart) }}
+                    </div>
+                {% else %}
+                    <ul id="choice" class="mt-4 flex flex-wrap items-center justify-center gap-2 text-gray-900">
+                        {% for choice in choices %}
+                            <li>
+                                <a href="/room/{{ room.id }}/choice/{{ choice|url_encode }}?uuid={{ selected_choice_uuid }}" class="block rounded-lg border p-4 shadow-sm {{ choice == selected_choice ? 'border-purple-200 bg-purple-200' : 'border-gray-200 bg-white hover:bg-gray-100' }}">{{ choice }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                    <div class="mt-8 flex items-center justify-center">
+                        <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span id="choices_count">{{ choices_count ~ (choices_count > 1 ? ' votes' : ' vote') }}</span>..
+                    </div>
+
+                    <small class="flex items-center justify-center">Send the link to invite users.</small>
+
+                    <a href="/room/{{ room.id }}/close" class="block mt-8 w-full rounded-lg bg-purple-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-purple-300">Close and see results</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        const IS_ROOM_CLOSED = '{{ room.isClosed == 1 }}';
+        const CHOICE_EVENT_SOURCE_URL = '{{ mercure('room-' ~ room.id) }}';
+        const CLOSE_EVENT_SOURCE_URL = '{{ mercure('room-close-' ~ room.id) }}';
+    </script>
+
+    {{ encore_entry_script_tags('room') }}
+{% endblock %}
